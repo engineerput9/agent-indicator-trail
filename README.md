@@ -6,7 +6,7 @@ uses the public NSEFO instrument CSV and selects unique equity underlyings from
 `NSETEST` names. Each name is downloaded from Yahoo Finance as `SYMBOL.NS`
 with `yfinance`, 5-minute bars, and `period="60d"`. Indices are not requested.
 
-The GitHub Actions job runs at **09:25 IST** (`55 3 * * 1-5` UTC) and can also
+The GitHub Actions job runs at **09:20 IST** (`50 3 * * 1-5` UTC) and can also
 be started with `workflow_dispatch`. Set the repository Actions secrets
 `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`; the workflow does not print the
 bot token. The repository is public, so secrets belong only in GitHub Actions

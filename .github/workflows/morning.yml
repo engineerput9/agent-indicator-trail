@@ -2,7 +2,7 @@ name: Morning scanner
 
 on:
   schedule:
-    - cron: '55 3 * * 1-5'
+    - cron: '50 3 * * 1-5'
   workflow_dispatch:
 
 jobs:
@@ -28,7 +28,7 @@ jobs:
             curl --fail --silent --show-error --output /dev/null \
               --request POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
               --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
-              --data-urlencode 'text=No trades at 09:25 IST'
+              --data-urlencode 'text=No trades at 09:20 IST'
           else
             while IFS= read -r signal; do
               [ -n "$signal" ] || continue
