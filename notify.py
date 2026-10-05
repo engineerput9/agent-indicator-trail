@@ -6,12 +6,19 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+# Chat ids are not secrets; keep them as fallbacks so a local backup never
+# fails just because TELEGRAM_CHAT_ID is unset. Tokens stay in the env only.
+DEFAULT_CHATS = {
+    "": "803261082",
+    "_2": "985694441",
+}
+
 
 def targets():
     out = []
     for suffix in ("", "_2"):
         token = os.environ.get(f"TELEGRAM_BOT_TOKEN{suffix}", "").strip()
-        chat = os.environ.get(f"TELEGRAM_CHAT_ID{suffix}", "").strip()
+        chat = os.environ.get(f"TELEGRAM_CHAT_ID{suffix}", "").strip() or DEFAULT_CHATS[suffix]
         if token and chat:
             out.append((token, chat))
     return out
@@ -55,6 +62,7 @@ def main():
                 failures += 1
     if failures:
         sys.exit(f"{failures} Telegram sends failed")
+    print(f"sent {len(messages)} message(s) to {len(dests)} bot(s)")
 
 
 if __name__ == "__main__":
