@@ -1,23 +1,83 @@
 name: Morning scanner
 
+# One scan per weekday, not an all-day loop: scan.py only accepts the first
+# in-session flip on a bar at or before 09:20 IST. GitHub's 09:20 cron is
+# often late or skipped, so watchdog.yml retries until one success lands.
 on:
   schedule:
-    - cron: '50 3 * * 1-5'
+    - cron: "50 3 * * 1-5"   # 09:20 IST
   workflow_dispatch:
+    inputs:
+      force:
+        description: "Send again even if today's scan already succeeded"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: agent-indicator-trail
+  cancel-in-progress: false
 
 jobs:
   scan:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
+      - name: Skip if today's scan already succeeded
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FORCE: ${{ inputs.force }}
+        run: |
+          set -euo pipefail
+          if [ "$FORCE" = "true" ]; then
+            echo "force run"
+            echo run > "$GITHUB_ENV"
+            exit 0
+          fi
+          python3 - << 'PY'
+          import json, os, subprocess
+          from datetime import datetime, timedelta, timezone
+          IST = timezone(timedelta(hours=5, minutes=30))
+          today = datetime.now(IST).date()
+          raw = subprocess.check_output([
+              "gh", "run", "list",
+              "--repo", os.environ["GITHUB_REPOSITORY"],
+              "--workflow", "morning.yml",
+              "--status", "success",
+              "--limit", "20",
+              "--json", "createdAt,conclusion,databaseId,event",
+          ], text=True)
+          runs = json.loads(raw)
+          done = []
+          for run in runs:
+              if run.get("conclusion") != "success":
+                  continue
+              stamp = datetime.fromisoformat(run["createdAt"].replace("Z", "+00:00")).astimezone(IST)
+              if stamp.date() == today:
+                  done.append(run["databaseId"])
+          print(f"successful morning runs today IST: {done}")
+          open(os.environ["GITHUB_ENV"], "a").write("SKIP=1\n" if done else "SKIP=0\n")
+          PY
+
       - name: Check out repository
+        if: env.SKIP != '1'
         uses: actions/checkout@v4
+
       - name: Set up Python
+        if: env.SKIP != '1'
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: "3.11"
+
       - name: Install dependencies
+        if: env.SKIP != '1'
         run: python -m pip install -r requirements.txt
+
       - name: Scan and notify Telegram
+        if: env.SKIP != '1'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}

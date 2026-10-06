@@ -1,0 +1,59 @@
+name: Morning scanner watchdog
+
+# 09:20 IST cron is best-effort. From 09:20 to 11:30 IST, start the morning
+# scan if it has not already succeeded today. The scan job itself skips a
+# second success, so this cannot double-send Telegram.
+on:
+  schedule:
+    - cron: "*/5 3-5 * * 1-5"   # 08:30–11:25 IST
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  kick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Dispatch morning scan if today's run is missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - << 'PY'
+          import json, os, subprocess, urllib.request
+          from datetime import datetime, timedelta, timezone
+          IST = timezone(timedelta(hours=5, minutes=30))
+          now = datetime.now(IST)
+          mins = now.hour * 60 + now.minute
+          if now.weekday() >= 5 or mins < 9 * 60 + 20 or mins > 11 * 60 + 30:
+              print(f"{now:%H:%M} IST outside 09:20-11:30 retry window")
+              raise SystemExit(0)
+          raw = subprocess.check_output([
+              "gh", "run", "list",
+              "--repo", os.environ["GITHUB_REPOSITORY"],
+              "--workflow", "morning.yml",
+              "--limit", "20",
+              "--json", "createdAt,conclusion,status",
+          ], text=True)
+          for run in json.loads(raw):
+              stamp = datetime.fromisoformat(run["createdAt"].replace("Z", "+00:00")).astimezone(IST)
+              if stamp.date() != now.date():
+                  continue
+              if run.get("status") in ("queued", "in_progress", "waiting", "requested", "pending") or run.get("conclusion") == "success":
+                  print("morning scan already active or succeeded today")
+                  raise SystemExit(0)
+          repo = os.environ["GITHUB_REPOSITORY"]
+          token = os.environ["GH_TOKEN"]
+          body = json.dumps({"ref": os.environ.get("GITHUB_REF_NAME", "master")}).encode()
+          req = urllib.request.Request(
+              f"https://api.github.com/repos/{repo}/actions/workflows/morning.yml/dispatches",
+              data=body,
+              headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"},
+              method="POST",
+          )
+          with urllib.request.urlopen(req, timeout=30) as resp:
+              print("dispatch", resp.status)
+          PY
