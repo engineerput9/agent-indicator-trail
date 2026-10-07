@@ -3,6 +3,8 @@ name: Morning scanner
 # One scan per weekday, not an all-day loop: scan.py only accepts the first
 # in-session flip on a bar at or before 09:20 IST. GitHub's 09:20 cron is
 # often late or skipped, so watchdog.yml retries until one success lands.
+# A 09:00 or 09:15 wake does not count: only a success created at or after
+# 09:20 IST skips later runs, so an early pass cannot lock out the real scan.
 on:
   schedule:
     - cron: "30 3 * * 1-5"   # 09:00 IST wake
@@ -13,7 +15,7 @@ on:
   workflow_dispatch:
     inputs:
       force:
-        description: "Send again even if today's scan already succeeded"
+        description: "Send again even if today's 09:20 scan already succeeded"
         type: boolean
         default: false
 
@@ -30,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Skip if today's scan already succeeded
+      - name: Skip if today's 09:20 scan already succeeded
         env:
           GH_TOKEN: ${{ github.token }}
           FORCE: ${{ inputs.force }}
@@ -43,9 +45,11 @@ jobs:
           fi
           python3 - << 'PY'
           import json, os, subprocess
-          from datetime import datetime, timedelta, timezone
+          from datetime import datetime, time, timedelta, timezone
           IST = timezone(timedelta(hours=5, minutes=30))
-          today = datetime.now(IST).date()
+          now = datetime.now(IST)
+          today = now.date()
+          cutoff = datetime.combine(today, time(9, 20), IST)
           raw = subprocess.check_output([
               "gh", "run", "list",
               "--repo", os.environ["GITHUB_REPOSITORY"],
@@ -56,13 +60,19 @@ jobs:
           ], text=True)
           runs = json.loads(raw)
           done = []
+          early = []
           for run in runs:
               if run.get("conclusion") != "success":
                   continue
               stamp = datetime.fromisoformat(run["createdAt"].replace("Z", "+00:00")).astimezone(IST)
-              if stamp.date() == today:
+              if stamp.date() != today:
+                  continue
+              if stamp >= cutoff:
                   done.append(run["databaseId"])
-          print(f"successful morning runs today IST: {done}")
+              else:
+                  early.append(run["databaseId"])
+          print(f"early successes before 09:20 IST (ignored): {early}")
+          print(f"successes at or after 09:20 IST: {done}")
           open(os.environ["GITHUB_ENV"], "a").write("SKIP=1\n" if done else "SKIP=0\n")
           PY
 
@@ -89,5 +99,5 @@ jobs:
           TELEGRAM_CHAT_ID_2: ${{ secrets.TELEGRAM_CHAT_ID_2 }}
         run: |
           set -euo pipefail
-          python scan.py > scan-output.txt
+          python scan.py | tee scan-output.txt
           python notify.py scan-output.txt
