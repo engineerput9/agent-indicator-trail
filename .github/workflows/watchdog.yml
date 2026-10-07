@@ -1,8 +1,8 @@
 name: Morning scanner watchdog
 
 # 09:20 IST cron is best-effort. From 09:20 to 11:30 IST, start the morning
-# scan if it has not already succeeded today. The scan job itself skips a
-# second success, so this cannot double-send Telegram.
+# scan if no success has landed at or after 09:20 IST. An earlier wake does
+# not count. The scan job itself skips a second 09:20 success.
 on:
   schedule:
     - cron: "*/5 3-5 * * 1-5"   # 08:30–11:25 IST
@@ -17,20 +17,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Dispatch morning scan if today's run is missing
+      - name: Dispatch morning scan if today's 09:20 run is missing
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           python3 - << 'PY'
           import json, os, subprocess, urllib.request
-          from datetime import datetime, timedelta, timezone
+          from datetime import datetime, time, timedelta, timezone
           IST = timezone(timedelta(hours=5, minutes=30))
           now = datetime.now(IST)
           mins = now.hour * 60 + now.minute
           if now.weekday() >= 5 or mins < 9 * 60 + 20 or mins > 11 * 60 + 30:
               print(f"{now:%H:%M} IST outside 09:20-11:30 retry window")
               raise SystemExit(0)
+          cutoff = datetime.combine(now.date(), time(9, 20), IST)
           raw = subprocess.check_output([
               "gh", "run", "list",
               "--repo", os.environ["GITHUB_REPOSITORY"],
@@ -42,8 +43,11 @@ jobs:
               stamp = datetime.fromisoformat(run["createdAt"].replace("Z", "+00:00")).astimezone(IST)
               if stamp.date() != now.date():
                   continue
-              if run.get("status") in ("queued", "in_progress", "waiting", "requested", "pending") or run.get("conclusion") == "success":
-                  print("morning scan already active or succeeded today")
+              if run.get("status") in ("queued", "in_progress", "waiting", "requested", "pending"):
+                  print("morning scan already active")
+                  raise SystemExit(0)
+              if run.get("conclusion") == "success" and stamp >= cutoff:
+                  print("morning scan already succeeded at or after 09:20 IST")
                   raise SystemExit(0)
           repo = os.environ["GITHUB_REPOSITORY"]
           token = os.environ["GH_TOKEN"]
