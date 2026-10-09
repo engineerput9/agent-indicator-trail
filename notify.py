@@ -5,6 +5,7 @@ import sys
 import urllib.error
 import urllib.parse
 import urllib.request
+from datetime import datetime, timedelta, timezone
 
 # Chat ids are not secrets; keep them as fallbacks so a local backup never
 # fails just because TELEGRAM_CHAT_ID is unset. Tokens stay in the env only.
@@ -47,11 +48,29 @@ def fmt(sig):
     )
 
 
+READY_AT = (9, 25)  # no message of any kind before 09:25 IST (the 09:20 bar closes at 09:25)
+
+
 def main():
     path = sys.argv[1] if len(sys.argv) > 1 else "scan-output.txt"
+    dry_run = os.environ.get("NOTIFY_DRY_RUN", "").strip() == "1"
     lines = [l.strip() for l in open(path, encoding="utf-8") if l.strip()]
     signals = [json.loads(l) for l in lines if l.startswith("{")]
-    messages = [fmt(s) for s in signals] or ["No trades at 09:20 IST"]
+    now = datetime.now(timezone(timedelta(hours=5, minutes=30)))
+    if any(l.startswith("TOO_EARLY") for l in lines) or (now.hour, now.minute) < READY_AT:
+        print(f"{now:%H:%M} IST: run is before 09:25 or scan reported TOO_EARLY, nothing sent")
+        return
+    if signals:
+        messages = [fmt(s) for s in signals]
+    elif "NO_SIGNALS" in lines:
+        messages = ["No trades at 09:20 IST"]
+    else:
+        # Scanner error or unknown output: never turn it into a 'No trades' message.
+        sys.exit("scan output has no signals and no NO_SIGNALS marker: nothing sent")
+    if dry_run:
+        print("NOTIFY_DRY_RUN=1, not sending:")
+        print("\n---\n".join(messages))
+        return
     dests = targets()
     if not dests:
         sys.exit("no Telegram targets configured")

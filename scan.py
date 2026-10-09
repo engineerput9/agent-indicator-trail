@@ -2,6 +2,7 @@
 """Standalone morning scanner for F&O equities on Yahoo Finance 5-minute bars."""
 from __future__ import annotations
 
+import argparse
 import json
 import logging
 import sys
@@ -21,6 +22,11 @@ MULT = 3.0
 SESSION_START = (9, 15)
 SESSION_END = (15, 30)
 CUTOFF = (9, 20)
+SCAN_BAR = (9, 20)    # opening scan always runs on the 09:20 bar (closes 09:25 IST)
+READY_AT = (9, 25)    # nothing is scanned or sent before 09:25 IST
+READY_SHARE = 0.8     # share of tickers that must already show a bar after 09:20
+READY_RETRIES = 4     # re-downloads while the 09:20 bar is not final (about 3 min)
+READY_SLEEP = 30
 STOP_PCT = 0.005
 LOCK_PCT = 0.015
 TRAIL_PCT = 0.001  # Informational rule for trade management after lock.
@@ -287,8 +293,33 @@ def download_frames(tickers: list[str]) -> dict[str, pd.DataFrame]:
     return loaded
 
 
+def prepare(df: pd.DataFrame, today) -> pd.DataFrame | None:
+    """09:26 rules: zero every 09:15 bar's volume (Yahoo later zeroes it anyway, so live and backtest
+    agree), drop today's bars after 09:20 (never scan a later or partial bar), require today's 09:20 bar."""
+    df = df.sort_index().copy()
+    t = df.index
+    is_0915 = (t.hour == 9) & (t.minute == 15)
+    df.loc[is_0915, "volume"] = 0.0
+    dates = np.asarray(t.date)
+    late = (dates == today) & ((t.hour > SCAN_BAR[0]) | ((t.hour == SCAN_BAR[0]) & (t.minute > SCAN_BAR[1])))
+    df = df[~late]
+    t = df.index
+    if not ((np.asarray(t.date) == today) & (t.hour == SCAN_BAR[0]) & (t.minute == SCAN_BAR[1])).any():
+        return None
+    return df
+
+
+def bar_final(df: pd.DataFrame, today) -> bool:
+    """The 09:20 bar is final once Yahoo has a later bar for today."""
+    t = df.index
+    after = (np.asarray(t.date) == today) & ((t.hour > SCAN_BAR[0]) | ((t.hour == SCAN_BAR[0]) & (t.minute > SCAN_BAR[1])))
+    return bool(after.any())
+
+
 def scan_symbol(symbol: str, df: pd.DataFrame, today) -> dict | None:
-    df = df.sort_index()
+    df = prepare(df, today)
+    if df is None:
+        return None
     high = df["high"].to_numpy(dtype=np.float64)
     low = df["low"].to_numpy(dtype=np.float64)
     close = df["close"].to_numpy(dtype=np.float64)
@@ -373,10 +404,13 @@ def scan_symbol(symbol: str, df: pd.DataFrame, today) -> dict | None:
             cond_ini = -1
         rf_prev = rf_i
 
-        # The opening scan is intentionally evaluated once per IST calendar day.
-        if in_session[i] and np.isfinite(vol) and vol > 0 and not scan_checked:
+        # The opening scan is evaluated once per IST day, on the 09:20 bar only. The 09:15 bar's volume
+        # is zeroed in prepare(); if the 09:20 bar has no volume the scan stays blank for the day.
+        if (in_session[i] and not scan_checked and hour[i] == SCAN_BAR[0] and minute[i] == SCAN_BAR[1]):
             scan_checked = True
-            if bull[i] and np.isfinite(vwap) and c > vwap:
+            if not (np.isfinite(vol) and vol > 0):
+                scan_side = 0
+            elif bull[i] and np.isfinite(vwap) and c > vwap:
                 scan_side = 1
             elif bear[i] and np.isfinite(vwap) and c < vwap:
                 scan_side = -1
@@ -405,6 +439,7 @@ def scan_symbol(symbol: str, df: pd.DataFrame, today) -> dict | None:
                 "symbol": symbol,
                 "side": side,
                 "signal_time": times[signal_i].isoformat(),
+                "entry_time": times[entry_i].isoformat(),
                 "entry": entry,
                 "sl": float(sl),
                 "lock": float(lock),
@@ -412,22 +447,57 @@ def scan_symbol(symbol: str, df: pd.DataFrame, today) -> dict | None:
     return None
 
 
+def ist_now() -> datetime:
+    return datetime.now(ZoneInfo(TZ))
+
+
 def main() -> None:
-    today = datetime.now(ZoneInfo(TZ)).date()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--date", help="replay a past IST date (YYYY-MM-DD); skips the time gate and readiness wait")
+    args = ap.parse_args()
+    now = ist_now()
+    if args.date:
+        today = datetime.strptime(args.date, "%Y-%m-%d").date()
+    else:
+        today = now.date()
+        if (now.hour, now.minute) < READY_AT:
+            # Early or manual run: the 09:20 bar is not closed. Print nothing that notify.py would send.
+            print(f"TOO_EARLY {now:%H:%M} IST (scan runs on the 09:20 bar after {READY_AT[0]:02d}:{READY_AT[1]:02d})")
+            return
     try:
         names = load_universe(today)
         tickers = [f"{name}.NS" for name in names]
         frames = download_frames(tickers)
+        for attempt in range(READY_RETRIES + 1):
+            if args.date:
+                break
+            have = [f for f in frames.values() if (np.asarray(f.index.date) == today).any()]
+            ready = sum(bar_final(f, today) for f in have)
+            share = ready / len(have) if have else 0.0
+            logging.warning("09:20 bar final for %d/%d tickers (%.0f%%)", ready, len(have), share * 100)
+            if have and share >= READY_SHARE:
+                break
+            if attempt == READY_RETRIES:
+                logging.error("09:20 bar still not final after %d retries", READY_RETRIES)
+                print("DATA_NOT_READY")
+                sys.exit(1)
+            time.sleep(READY_SLEEP)
+            frames = download_frames(tickers)
+    except SystemExit:
+        raise
     except Exception as exc:
+        # Do not print NO_SIGNALS here: a failed setup must not become a 'No trades' message.
         logging.error("scanner setup failed: %s", exc)
-        print("NO_SIGNALS")
-        return
+        print("SCAN_ERROR")
+        sys.exit(1)
 
     signals = []
     for ticker in tickers:
         frame = frames.get(ticker)
         if frame is None:
             continue
+        if not args.date and not bar_final(frame, today):
+            continue  # this name's 09:20 bar may still be forming
         try:
             signal = scan_symbol(ticker, frame, today)
             if signal is not None:

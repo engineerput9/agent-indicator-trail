@@ -1,21 +1,22 @@
 name: Morning scanner
 
-# One scan per weekday, not an all-day loop: scan.py only accepts the first
-# in-session flip on a bar at or before 09:20 IST. GitHub's 09:20 cron is
-# often late or skipped, so watchdog.yml retries until one success lands.
-# A 09:00 or 09:15 wake does not count: only a success created at or after
-# 09:20 IST skips later runs, so an early pass cannot lock out the real scan.
+# 09:26 version. One scan per weekday on the 09:20 bar (closes 09:25 IST);
+# entry is that bar's close. GitHub crons are often late or skipped, so
+# watchdog.yml retries until one success lands. A run that starts before
+# 09:25 IST (early wake or manual) sends nothing at all, not even 'No trades',
+# and does not count; only a success that started at or after 09:25 IST skips
+# later runs, so the same day is not sent twice.
 on:
   schedule:
-    - cron: "30 3 * * 1-5"   # 09:00 IST wake
-    - cron: "45 3 * * 1-5"   # 09:15 IST wake
-    - cron: "50 3 * * 1-5"   # 09:20 IST scan
-    - cron: "0 4 * * 1-5"    # 09:30 IST backup
+    - cron: "30 3 * * 1-5"   # 09:00 IST wake (sends nothing)
+    - cron: "45 3 * * 1-5"   # 09:15 IST wake (sends nothing)
+    - cron: "56 3 * * 1-5"   # 09:26 IST scan
+    - cron: "5 4 * * 1-5"    # 09:35 IST backup
     - cron: "15 4 * * 1-5"   # 09:45 IST backup
   workflow_dispatch:
     inputs:
       force:
-        description: "Send again even if today's 09:20 scan already succeeded"
+        description: "Send again even if today's scan already succeeded (still never before 09:25 IST)"
         type: boolean
         default: false
 
@@ -32,48 +33,52 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Skip if today's 09:20 scan already succeeded
+      - name: Skip if before 09:25 IST or today's scan already succeeded
         env:
           GH_TOKEN: ${{ github.token }}
           FORCE: ${{ inputs.force }}
         run: |
           set -euo pipefail
-          if [ "$FORCE" = "true" ]; then
-            echo "force run"
-            echo "SKIP=0" >> "$GITHUB_ENV"
-            exit 0
-          fi
           python3 - << 'PY'
           import json, os, subprocess
           from datetime import datetime, time, timedelta, timezone
           IST = timezone(timedelta(hours=5, minutes=30))
+          repo = os.environ["GITHUB_REPOSITORY"]
+          own_id = int(os.environ["GITHUB_RUN_ID"])
+          def ist(stamp):
+              return datetime.fromisoformat(stamp.replace("Z", "+00:00")).astimezone(IST)
           now = datetime.now(IST)
+          own = json.loads(subprocess.check_output(
+              ["gh", "run", "view", str(own_id), "--repo", repo, "--json", "startedAt"], text=True))
+          started = ist(own["startedAt"]) if own.get("startedAt") else now
           today = now.date()
-          cutoff = datetime.combine(today, time(9, 20), IST)
+          cutoff = datetime.combine(today, time(9, 25), IST)
+          env = open(os.environ["GITHUB_ENV"], "a")
+          # The run's own start time decides 'early', the same field used for dedupe below.
+          if started < cutoff or now < cutoff:
+              print(f"run started {started:%Y-%m-%d %H:%M:%S} IST, now {now:%H:%M:%S} IST: before 09:25 the 09:20 bar is not closed, nothing will be sent")
+              env.write("SKIP=1\n")
+              raise SystemExit(0)
+          if os.environ.get("FORCE") == "true":
+              print("force run")
+              env.write("SKIP=0\n")
+              raise SystemExit(0)
           raw = subprocess.check_output([
-              "gh", "run", "list",
-              "--repo", os.environ["GITHUB_REPOSITORY"],
+              "gh", "run", "list", "--repo", repo,
               "--workflow", "morning.yml",
               "--status", "success",
-              "--limit", "20",
-              "--json", "createdAt,conclusion,databaseId,event",
+              "--limit", "30",
+              "--json", "startedAt,createdAt,conclusion,databaseId,event",
           ], text=True)
-          runs = json.loads(raw)
           done = []
-          early = []
-          for run in runs:
-              if run.get("conclusion") != "success":
+          for run in json.loads(raw):
+              if run.get("conclusion") != "success" or run["databaseId"] == own_id:
                   continue
-              stamp = datetime.fromisoformat(run["createdAt"].replace("Z", "+00:00")).astimezone(IST)
-              if stamp.date() != today:
-                  continue
-              if stamp >= cutoff:
+              stamp = ist(run.get("startedAt") or run["createdAt"])
+              if stamp.date() == today and stamp >= cutoff:
                   done.append(run["databaseId"])
-              else:
-                  early.append(run["databaseId"])
-          print(f"early successes before 09:20 IST (ignored): {early}")
-          print(f"successes at or after 09:20 IST: {done}")
-          open(os.environ["GITHUB_ENV"], "a").write("SKIP=1\n" if done else "SKIP=0\n")
+          print(f"successes that started at or after 09:25 IST today: {done}")
+          env.write("SKIP=1\n" if done else "SKIP=0\n")
           PY
 
       - name: Check out repository
