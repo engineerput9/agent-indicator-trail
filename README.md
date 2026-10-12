@@ -47,3 +47,11 @@ Each signal is one compact JSON line containing `symbol`, `side`,
 
 This scanner is not connected to TradingView and TradingView is not involved
 in its data download, indicator calculations, or notifications.
+
+## Fyers primary, Yahoo fallback (from 13 Oct 2026)
+
+Live morning signals now come from **Fyers** data, scanned on the owner's box (Fyers credentials exist only there, never in this repo):
+
+- 09:25:10 IST Mon–Fri, the box runs the same 09:20-bar rule A on Fyers 5m data (207 F&O names). It waits for the 09:20 candle on at least 90% of names, then sends the usual Telegram messages to both chats. A per-day marker on the box stops it sending twice. It never sends before 09:25 or after 09:28.
+- After a send, the box sets the repo variable `LAST_FYERS_SEND_DATE` to that day's IST date.
+- `morning.yml` (Yahoo) is the fallback. It waits until 09:29 IST, reads `LAST_FYERS_SEND_DATE`, and sends nothing if it equals today's date. If the box did not send, the Yahoo job sends as before. `watchdog.yml` does not dispatch a retry on days Fyers has sent.

@@ -6,6 +6,12 @@ name: Morning scanner
 # 09:25 IST (early wake or manual) sends nothing at all, not even 'No trades',
 # and does not count; only a success that started at or after 09:25 IST skips
 # later runs, so the same day is not sent twice.
+#
+# FYERS is primary (since 13 Oct 2026): a scanner on the owner's box runs the same
+# 09:20 rule A on Fyers data at 09:25 IST, sends Telegram itself and then sets
+# the repo variable LAST_FYERS_SEND_DATE to today's IST date. This Yahoo job is
+# the fallback: it waits until 09:29 IST, and skips sending if that variable
+# equals today's date. If the box did not send (variable not set), Yahoo sends.
 on:
   schedule:
     - cron: "30 3 * * 1-5"   # 09:00 IST wake (sends nothing)
@@ -37,10 +43,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           FORCE: ${{ inputs.force }}
+          FYERS_VAR_AT_START: ${{ vars.LAST_FYERS_SEND_DATE }}
         run: |
           set -euo pipefail
           python3 - << 'PY'
-          import json, os, subprocess
+          import json, os, subprocess, time as clock
           from datetime import datetime, time, timedelta, timezone
           IST = timezone(timedelta(hours=5, minutes=30))
           repo = os.environ["GITHUB_REPOSITORY"]
@@ -54,6 +61,18 @@ jobs:
           today = now.date()
           cutoff = datetime.combine(today, time(9, 25), IST)
           env = open(os.environ["GITHUB_ENV"], "a")
+          def fyers_sent_date():
+              # Live value via the API; fall back to the vars context captured at job start.
+              try:
+                  out = subprocess.run(["gh", "api", f"repos/{repo}/actions/variables/LAST_FYERS_SEND_DATE"],
+                                       capture_output=True, text=True, timeout=60)
+                  if out.returncode == 0:
+                      return json.loads(out.stdout).get("value", ""), "API"
+                  print(f"variable API read failed ({out.stderr.strip()[:120]})")
+              except Exception as exc:
+                  print(f"variable API read failed ({type(exc).__name__})")
+              return os.environ.get("FYERS_VAR_AT_START", ""), "vars context at job start"
+          print("LAST_FYERS_SEND_DATE now: %r (%s)" % fyers_sent_date())
           # The run's own start time decides 'early', the same field used for dedupe below.
           if started < cutoff or now < cutoff:
               print(f"run started {started:%Y-%m-%d %H:%M:%S} IST, now {now:%H:%M:%S} IST: before 09:25 the 09:20 bar is not closed, nothing will be sent")
@@ -62,6 +81,18 @@ jobs:
           if os.environ.get("FORCE") == "true":
               print("force run")
               env.write("SKIP=0\n")
+              raise SystemExit(0)
+          # Fyers on the box goes first (sends from 09:25, never after 09:28). Give it until 09:29 IST.
+          check_at = datetime.combine(today, time(9, 29), IST)
+          if datetime.now(IST) < check_at:
+              wait = (check_at - datetime.now(IST)).total_seconds()
+              print(f"waiting {wait:.0f}s until 09:29 IST so the Fyers box scan can send first")
+              clock.sleep(wait)
+          fy, src = fyers_sent_date()
+          print(f"LAST_FYERS_SEND_DATE={fy!r} ({src}), today {today.isoformat()}")
+          if fy == today.isoformat():
+              print("Fyers (box) already sent today's signals: Yahoo fallback sends nothing")
+              env.write("SKIP=1\n")
               raise SystemExit(0)
           raw = subprocess.check_output([
               "gh", "run", "list", "--repo", repo,

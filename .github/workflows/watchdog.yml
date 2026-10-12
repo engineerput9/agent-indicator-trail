@@ -2,7 +2,9 @@ name: Morning scanner watchdog
 
 # The 09:26 IST cron is best-effort. From 09:30 to 11:30 IST, start the morning
 # scan if no success has landed that started at or after 09:25 IST. An earlier
-# wake does not count. The scan job itself skips a second success.
+# wake does not count. The scan job itself skips a second success. If the Fyers
+# box scanner already sent today (repo variable LAST_FYERS_SEND_DATE == today),
+# nothing is dispatched.
 on:
   schedule:
     - cron: "*/5 3-5 * * 1-5"   # 08:30–11:25 IST
@@ -20,6 +22,7 @@ jobs:
       - name: Dispatch morning scan if today's 09:26 run is missing
         env:
           GH_TOKEN: ${{ github.token }}
+          FYERS_VAR_AT_START: ${{ vars.LAST_FYERS_SEND_DATE }}
         run: |
           set -euo pipefail
           python3 - << 'PY'
@@ -32,6 +35,13 @@ jobs:
               print(f"{now:%H:%M} IST outside 09:30-11:30 retry window")
               raise SystemExit(0)
           cutoff = datetime.combine(now.date(), time(9, 25), IST)
+          # Fyers on the box is primary: if it sent today, there is nothing to retry.
+          fy = subprocess.run(["gh", "api", f"repos/{os.environ['GITHUB_REPOSITORY']}/actions/variables/LAST_FYERS_SEND_DATE"],
+                              capture_output=True, text=True)
+          fyv = json.loads(fy.stdout).get("value", "") if fy.returncode == 0 else os.environ.get("FYERS_VAR_AT_START", "")
+          if fyv == now.date().isoformat():
+              print("Fyers (box) sent today's signals: no Yahoo retry needed")
+              raise SystemExit(0)
           raw = subprocess.check_output([
               "gh", "run", "list",
               "--repo", os.environ["GITHUB_REPOSITORY"],
