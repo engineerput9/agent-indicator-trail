@@ -32,10 +32,11 @@ LOCK_PCT = 0.015
 TRAIL_PCT = 0.001  # Informational rule for trade management after lock.
 # Entry filters (from 13 Oct 2026, same as the Fyers box scanner). Set to None or env FILTERS_OFF=1 to disable.
 GAP_MAX = 0.003     # skip if signed opening gap in the trade's direction > +0.3%
+BODY_MAX = 0.91     # skip if the 09:15 5m candle is in trade direction with body > 91% of its range
 VWAP_MIN = 0.0015   # skip if signed VWAP distance (entry/VWAP-1, x -1 for sells) <= +0.15%
 import os as _os
 if _os.environ.get("FILTERS_OFF") == "1":
-    GAP_MAX = VWAP_MIN = None
+    GAP_MAX = VWAP_MIN = BODY_MAX = None
 
 logging.basicConfig(stream=sys.stderr, level=logging.WARNING, format="%(levelname)s: %(message)s")
 
@@ -479,7 +480,13 @@ def entry_features(df: pd.DataFrame, today, side: str, entry: float, daily: pd.D
     tp = (cur["high"] + cur["low"] + cur["close"]) / 3
     vv = float(vol.sum())
     vwap = float((tp * vol).sum()) / vv if vv > 0 else None
-    return gap, s * (entry / vwap - 1) if vwap else None  # signed: + = entry on the trade side of VWAP
+    # 09:15 body: Yahoo's 09:15 open can be a pre-open value, so use the official daily open when available
+    # (approximation: high/low widened to include that open; flagged in the README of the box scanner).
+    b = cur.iloc[0]
+    bo = o if daily is not None else float(b["open"])
+    bh, bl = max(float(b["high"]), bo), min(float(b["low"]), bo)
+    body = s * (float(b["close"]) - bo) / (bh - bl) if bh > bl else None
+    return gap, (s * (entry / vwap - 1) if vwap else None), body  # signed: + = entry on the trade side of VWAP
 
 
 def daily_bars(ticker: str) -> pd.DataFrame | None:
@@ -545,11 +552,13 @@ def main() -> None:
         try:
             signal = scan_symbol(ticker, frame, today)
             if signal is not None:
-                gap, vd = entry_features(frame, today, signal["side"], signal["entry"], daily_bars(ticker))
+                gap, vd, body = entry_features(frame, today, signal["side"], signal["entry"], daily_bars(ticker))
                 if GAP_MAX is not None and gap is not None and gap > GAP_MAX:
                     logging.warning("skipped_gap %s %s gap=%.4f", ticker, signal["side"], gap)
                 elif VWAP_MIN is not None and vd is not None and vd <= VWAP_MIN:
                     logging.warning("skipped_vwap %s %s vwap_dist=%.5f", ticker, signal["side"], vd)
+                elif BODY_MAX is not None and body is not None and body > BODY_MAX:
+                    logging.warning("skipped_body %s %s b15_body=%.3f", ticker, signal["side"], body)
                 else:
                     signals.append(signal)
         except Exception as exc:
