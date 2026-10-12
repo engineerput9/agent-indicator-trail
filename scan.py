@@ -32,7 +32,7 @@ LOCK_PCT = 0.015
 TRAIL_PCT = 0.001  # Informational rule for trade management after lock.
 # Entry filters (from 13 Oct 2026, same as the Fyers box scanner). Set to None or env FILTERS_OFF=1 to disable.
 GAP_MAX = 0.003     # skip if signed opening gap in the trade's direction > +0.3%
-VWAP_MIN = 0.0015   # skip if abs(entry / session VWAP - 1) <= 0.15%
+VWAP_MIN = 0.0015   # skip if signed VWAP distance (entry/VWAP-1, x -1 for sells) <= +0.15%
 import os as _os
 if _os.environ.get("FILTERS_OFF") == "1":
     GAP_MAX = VWAP_MIN = None
@@ -479,7 +479,7 @@ def entry_features(df: pd.DataFrame, today, side: str, entry: float, daily: pd.D
     tp = (cur["high"] + cur["low"] + cur["close"]) / 3
     vv = float(vol.sum())
     vwap = float((tp * vol).sum()) / vv if vv > 0 else None
-    return gap, (entry / vwap - 1) if vwap else None
+    return gap, s * (entry / vwap - 1) if vwap else None  # signed: + = entry on the trade side of VWAP
 
 
 def daily_bars(ticker: str) -> pd.DataFrame | None:
@@ -548,7 +548,7 @@ def main() -> None:
                 gap, vd = entry_features(frame, today, signal["side"], signal["entry"], daily_bars(ticker))
                 if GAP_MAX is not None and gap is not None and gap > GAP_MAX:
                     logging.warning("skipped_gap %s %s gap=%.4f", ticker, signal["side"], gap)
-                elif VWAP_MIN is not None and vd is not None and abs(vd) <= VWAP_MIN:
+                elif VWAP_MIN is not None and vd is not None and vd <= VWAP_MIN:
                     logging.warning("skipped_vwap %s %s vwap_dist=%.5f", ticker, signal["side"], vd)
                 else:
                     signals.append(signal)
