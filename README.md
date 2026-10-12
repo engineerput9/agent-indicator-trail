@@ -6,7 +6,7 @@ uses the public NSEFO instrument CSV and selects unique equity underlyings from
 `NSETEST` names. Each name is downloaded from Yahoo Finance as `SYMBOL.NS`
 with `yfinance`, 5-minute bars, and `period="60d"`. Indices are not requested.
 
-The GitHub Actions job runs at **09:26 IST** (`56 3 * * 1-5` UTC), with
+The GitHub Actions job is now the **Yahoo fallback** at **09:29 IST** (`59 3 * * 1-5` UTC; see "Fyers primary" below), with
 09:35/09:45 backups and a watchdog (09:30-11:30) that re-dispatches until one
 run succeeds. It can also be started with `workflow_dispatch`. A run that
 starts before 09:25 IST sends nothing (not even "No trades"); a second
@@ -52,6 +52,6 @@ in its data download, indicator calculations, or notifications.
 
 Live morning signals now come from **Fyers** data, scanned on the owner's box (Fyers credentials exist only there, never in this repo):
 
-- 09:25:10 IST Mon–Fri, the box runs the same 09:20-bar rule A on Fyers 5m data (207 F&O names). It waits for the 09:20 candle on at least 90% of names, then sends the usual Telegram messages to both chats. A per-day marker on the box stops it sending twice. It never sends before 09:25 or after 09:28.
+- 09:25:10 IST Mon–Fri, the box runs the same 09:20-bar rule A on Fyers 5m data (207 F&O names). It waits for the 09:20 candle on at least 90% of names, then sends the usual Telegram messages to both chats. A per-day marker on the box stops it sending twice. It never sends before 09:25 and never starts sending after 09:27:30.
 - After a send, the box sets the repo variable `LAST_FYERS_SEND_DATE` to that day's IST date.
-- `morning.yml` (Yahoo) is the fallback. It waits until 09:29 IST, reads `LAST_FYERS_SEND_DATE`, and sends nothing if it equals today's date. If the box did not send, the Yahoo job sends as before. `watchdog.yml` does not dispatch a retry on days Fyers has sent.
+- `morning.yml` (Yahoo) is the fallback. Its main cron is now 09:29 IST (UTC `59 3 * * 1-5`). Only runs that start at or after 09:29 may send, and they send nothing if `LAST_FYERS_SEND_DATE` equals today's date. If the box did not send, the Yahoo job sends as before (09:29 run, 09:35/09:45 backups, watchdog). The variable is read from the `vars` context because `GITHUB_TOKEN` gets HTTP 403 on the variables API. `watchdog.yml` does not dispatch a retry on days Fyers has sent.
