@@ -568,6 +568,9 @@ def main() -> None:
         print("NO_SIGNALS")
         return
     for signal in signals:
+        # RVOL priority is not computed here: Yahoo zeroes the 09:15 bar's volume, so the
+        # (09:15+09:20) RVOL used by the Fyers box scanner is unavailable. Original order kept.
+        signal.update(rvol=None, priority=None, rvol_note=" on Yahoo fallback")
         print(json.dumps(signal, separators=(",", ":"), allow_nan=False))
 
 

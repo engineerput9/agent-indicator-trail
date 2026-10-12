@@ -45,7 +45,19 @@ def fmt(sig):
         f"Target: {sig['lock']:.2f}\n"
         f"S/L: {sig['sl']:.2f}\n"
         f"Time: {sig['signal_time'][11:16]} IST"
+        + _priority(sig)
     )
+
+
+def _priority(sig):
+    """Optional RVOL priority line (added by the scanners; absent in old outputs)."""
+    if "rvol" not in sig:
+        return ""
+    rv, pr = sig.get("rvol"), sig.get("priority")
+    line = f"\nPriority: #{pr} (RVOL {rv:.2f}x)" if rv is not None and pr else f"\nPriority: n/a (RVOL n/a{sig.get('rvol_note', '')})"
+    if sig.get("top3_note"):
+        line += "\nMany signals today: if you can only take a few, take the top 3 by priority."
+    return line
 
 
 READY_AT = (9, 25)  # no message of any kind before 09:25 IST (the 09:20 bar closes at 09:25)
