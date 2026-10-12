@@ -44,7 +44,7 @@ def fmt(sig):
         f"Entry: {sig['entry']:.2f}\n"
         f"Target: {sig['lock']:.2f}\n"
         f"S/L: {sig['sl']:.2f}\n"
-        f"Time: {sig['signal_time'][11:16]} IST"
+        f"Time: {sig.get('entry_time', sig['signal_time'])[11:16]} IST"  # entry candle (09:20), not the RF flip bar
         + _priority(sig)
     )
 
