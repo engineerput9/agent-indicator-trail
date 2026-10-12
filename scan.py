@@ -30,6 +30,12 @@ READY_SLEEP = 30
 STOP_PCT = 0.005
 LOCK_PCT = 0.015
 TRAIL_PCT = 0.001  # Informational rule for trade management after lock.
+# Entry filters (from 13 Oct 2026, same as the Fyers box scanner). Set to None or env FILTERS_OFF=1 to disable.
+GAP_MAX = 0.003     # skip if signed opening gap in the trade's direction > +0.3%
+VWAP_MIN = 0.0015   # skip if abs(entry / session VWAP - 1) <= 0.15%
+import os as _os
+if _os.environ.get("FILTERS_OFF") == "1":
+    GAP_MAX = VWAP_MIN = None
 
 logging.basicConfig(stream=sys.stderr, level=logging.WARNING, format="%(levelname)s: %(message)s")
 
@@ -447,6 +453,44 @@ def scan_symbol(symbol: str, df: pd.DataFrame, today) -> dict | None:
     return None
 
 
+def entry_features(df: pd.DataFrame, today, side: str, entry: float, daily: pd.DataFrame | None = None):
+    """gap = today 09:15 open / previous session's last close - 1 (x -1 for sells);
+    VWAP = typical price x volume over today's 09:15-09:20 bars (raw volume)."""
+    df = df.sort_index()
+    df = df[~df.index.duplicated(keep="last")]
+    t = df.index
+    mins = t.hour * 60 + t.minute
+    dates = np.asarray(t.date)
+    sess = (mins >= 555) & (mins < 930)
+    prev = df[sess & (dates < today)]
+    cur = df[sess & (dates == today) & (mins <= 560)]
+    if prev.empty or cur.empty:
+        return None, None
+    s = 1 if side == "long" else -1
+    o, pc = float(cur["open"].iloc[0]), float(prev["close"].iloc[-1])
+    if daily is not None:   # Yahoo intraday often misses the last bars and has a pre-open 09:15 open
+        dd = daily.sort_index(); ddates = np.asarray(dd.index.date)
+        if (ddates == today).any() and (ddates < today).any():
+            o = float(dd["open"][ddates == today].iloc[0]); pc = float(dd["close"][ddates < today].iloc[-1])
+    gap = s * (o / pc - 1)
+    vol = cur["volume"].fillna(0).copy()
+    if len(cur) == 2 and vol.iloc[0] <= 0:
+        vol.iloc[0] = vol.iloc[1]   # Yahoo zeroes the 09:15 volume: weight it like the 09:20 bar (approximation)
+    tp = (cur["high"] + cur["low"] + cur["close"]) / 3
+    vv = float(vol.sum())
+    vwap = float((tp * vol).sum()) / vv if vv > 0 else None
+    return gap, (entry / vwap - 1) if vwap else None
+
+
+def daily_bars(ticker: str) -> pd.DataFrame | None:
+    try:
+        import yfinance as yf
+        return normalize(yf.Ticker(ticker).history(period="10d", interval="1d", auto_adjust=False))
+    except Exception as exc:
+        logging.warning("daily bars failed for %s: %s", ticker, exc)
+        return None
+
+
 def ist_now() -> datetime:
     return datetime.now(ZoneInfo(TZ))
 
@@ -501,7 +545,13 @@ def main() -> None:
         try:
             signal = scan_symbol(ticker, frame, today)
             if signal is not None:
-                signals.append(signal)
+                gap, vd = entry_features(frame, today, signal["side"], signal["entry"], daily_bars(ticker))
+                if GAP_MAX is not None and gap is not None and gap > GAP_MAX:
+                    logging.warning("skipped_gap %s %s gap=%.4f", ticker, signal["side"], gap)
+                elif VWAP_MIN is not None and vd is not None and abs(vd) <= VWAP_MIN:
+                    logging.warning("skipped_vwap %s %s vwap_dist=%.5f", ticker, signal["side"], vd)
+                else:
+                    signals.append(signal)
         except Exception as exc:
             logging.warning("scan failed for %s: %s", ticker, exc)
 
