@@ -1,0 +1,24 @@
+name: Telegram test
+on: workflow_dispatch
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Send test
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN_2: ${{ secrets.TELEGRAM_BOT_TOKEN_2 }}
+          TELEGRAM_CHAT_ID_2: ${{ secrets.TELEGRAM_CHAT_ID_2 }}
+        run: |
+          python - <<'PY'
+          import json, urllib.request, notify
+          for i,(t,c) in enumerate(notify.targets()):
+              me = json.load(urllib.request.urlopen(f"https://api.telegram.org/bot{t}/getMe"))["result"]
+              ok = notify.send(t, c, "🧪 Test message from GitHub (agent-indicator-trail backup job). Ignore.")
+              print(i, "bot=@" + me["username"], me["first_name"], "sent", ok)
+          PY
