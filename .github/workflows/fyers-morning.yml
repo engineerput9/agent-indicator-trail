@@ -47,6 +47,9 @@ jobs:
           print(f"job started {now:%H:%M:%S} IST; LAST_FYERS_SEND_DATE={var!r} state={st!r} today={today}")
           skip = (var == today or st == today) and not os.environ.get("TEST_DATE")
           if skip: print("already sent today: nothing to do")
+          late = not os.environ.get("TEST_DATE") and (now.weekday() >= 5 or now.strftime("%H:%M") > "09:40")
+          if late and not skip: print("past 09:40 IST (GitHub cron fired late) or weekend: too late to send, nothing to do")
+          skip = skip or late
           open(os.environ["GITHUB_ENV"], "a").write(f"SKIP={'1' if skip else '0'}\n")
           PY
       - uses: actions/setup-python@v5
