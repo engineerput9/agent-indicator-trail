@@ -1,0 +1,38 @@
+name: Fyers connection test
+on: workflow_dispatch
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -q fyers-apiv3 pyotp requests
+      - name: Login, fetch a bar, send Telegram
+        env:
+          FYERS_APP_ID: ${{ secrets.FYERS_APP_ID }}
+          FYERS_SECRET_ID: ${{ secrets.FYERS_SECRET_ID }}
+          FYERS_CLIENT_ID: ${{ secrets.FYERS_CLIENT_ID }}
+          FYERS_PIN: ${{ secrets.FYERS_PIN }}
+          FYERS_TOTP_KEY: ${{ secrets.FYERS_TOTP_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN_2: ${{ secrets.TELEGRAM_BOT_TOKEN_2 }}
+          TELEGRAM_CHAT_ID_2: ${{ secrets.TELEGRAM_CHAT_ID_2 }}
+        run: |
+          python - <<'PY'
+          import sys, time, notify
+          sys.path.insert(0, "fyers")
+          import fyers_login
+          try:
+              f = fyers_login.get_fyers(force=True)
+              p = f.get_profile(); ok_p = p.get("s") == "ok"
+              h = f.history({"symbol":"NSE:SBIN-EQ","resolution":"5","date_format":"0","range_from":int(time.time())-5*86400,"range_to":int(time.time()),"cont_flag":"1"})
+              n = len(h.get("candles") or [])
+              msg = f"✅ GitHub ↔ Fyers connected. Login: {'OK' if ok_p else 'FAILED'}. SBIN 5m candles fetched: {n}." if ok_p and n else f"⚠️ GitHub Fyers test: login {'OK' if ok_p else 'FAILED'}, candles {n}."
+          except Exception as e:
+              msg = f"❌ GitHub Fyers test failed: {type(e).__name__}"
+          print(msg)
+          for t, c in notify.targets(): print("telegram", notify.send(t, c, msg))
+          PY
