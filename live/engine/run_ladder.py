@@ -10,7 +10,7 @@ sys.path.insert(0, __import__('os').path.dirname(__import__('os').path.abspath(_
 import backtest as bt
 import run_pct_targets as pct
 
-ROOT = Path('/workspace/backtest')
+ROOT = Path(__import__('os').environ.get('BT_ROOT', '/tmp/bt_engine')); ROOT.mkdir(parents=True, exist_ok=True)
 INITIAL = bt.INITIAL
 RISK_PCT = bt.RISK_PCT
 TARGET_PCT = 0.015

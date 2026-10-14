@@ -87,7 +87,7 @@ jobs:
             python live/fyers_morning.py | tee out.txt || rc=$?
           fi
           echo "scan end rc=$rc $(TZ=Asia/Kolkata date +%T) IST"
-          if [ "$SEND_TEST" = "true" ]; then
+          if [ "$SEND_TEST" = "true" ] && [ "$rc" = "0" ]; then
             python - <<'PY'
           import notify, subprocess
           from datetime import datetime, timedelta, timezone

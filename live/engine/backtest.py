@@ -25,7 +25,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path("/workspace/backtest")
+ROOT = Path(__import__('os').environ.get('BT_ROOT', '/tmp/bt_engine')); ROOT.mkdir(parents=True, exist_ok=True)
 DATA = ROOT / "data"
 DATA.mkdir(parents=True, exist_ok=True)
 

@@ -22,7 +22,7 @@ import pandas as pd
 sys.path.insert(0, __import__('os').path.dirname(__import__('os').path.abspath(__file__)))
 import backtest as bt
 
-ROOT = Path("/workspace/backtest")
+ROOT = Path(__import__('os').environ.get('BT_ROOT', '/tmp/bt_engine')); ROOT.mkdir(parents=True, exist_ok=True)
 DATA = ROOT / "data"
 INITIAL = bt.INITIAL
 RISK_PCT = bt.RISK_PCT
