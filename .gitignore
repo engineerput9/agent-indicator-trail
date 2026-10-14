@@ -1,5 +1,7 @@
-__pycache__/
+*.pyc
 .venv/
-oct1_*
+__pycache__/
 fyers/.token
 fyers/logs/
+live/out/
+oct1_*

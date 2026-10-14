@@ -1,0 +1,109 @@
+name: Fyers morning scanner
+
+# PRIMARY candidate sender of the 09:20-bar F&O signals on Fyers data.
+# Dedupe: skips if repo variable LAST_FYERS_SEND_DATE (set by the box) or state/last_send.json
+# (committed by this workflow, since GITHUB_TOKEN cannot write variables) already equals today (IST).
+# Waits until 09:25:10 IST, then fyers_morning.py waits for the 09:20 bar, scans and sends.
+on:
+  schedule:
+    - cron: "51 3 * * 1-5"   # 09:21 IST
+    - cron: "55 3 * * 1-5"   # 09:25 IST retry
+  workflow_dispatch:
+    inputs:
+      test_date:
+        description: "TEST: replay this past date (YYYY-MM-DD) on live Fyers data; never sends signals"
+        type: string
+        default: ""
+      send_test_message:
+        description: "TEST: also send one message marked TEST with the timing to Telegram"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fyers-morning
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      TEST_DATE: ${{ inputs.test_date }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dedupe check
+        env:
+          FYERS_VAR_AT_START: ${{ vars.LAST_FYERS_SEND_DATE }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime, timedelta, timezone
+          now = datetime.now(timezone(timedelta(hours=5, minutes=30))); today = now.date().isoformat()
+          st = json.load(open("state/last_send.json")).get("date") if os.path.exists("state/last_send.json") else None
+          var = os.environ.get("FYERS_VAR_AT_START", "")
+          print(f"job started {now:%H:%M:%S} IST; LAST_FYERS_SEND_DATE={var!r} state={st!r} today={today}")
+          skip = (var == today or st == today) and not os.environ.get("TEST_DATE")
+          if skip: print("already sent today: nothing to do")
+          open(os.environ["GITHUB_ENV"], "a").write(f"SKIP={'1' if skip else '0'}\n")
+          PY
+      - uses: actions/setup-python@v5
+        if: env.SKIP != '1'
+        with: { python-version: "3.11", cache: pip }
+      - name: Install
+        if: env.SKIP != '1'
+        run: python -m pip install -q fyers-apiv3 pyotp requests pandas numpy && echo "installed $(TZ=Asia/Kolkata date +%T) IST"
+      - name: Wait until 09:25:10 IST
+        if: env.SKIP != '1' && env.TEST_DATE == ''
+        run: |
+          now=$(TZ=Asia/Kolkata date +%s); tgt=$(TZ=Asia/Kolkata date -d "09:25:10" +%s)
+          [ $now -lt $tgt ] && sleep $((tgt-now)); echo "go $(TZ=Asia/Kolkata date +%T) IST"
+      - name: Scan and send
+        if: env.SKIP != '1'
+        env:
+          FYERS_APP_ID: ${{ secrets.FYERS_APP_ID }}
+          FYERS_SECRET_ID: ${{ secrets.FYERS_SECRET_ID }}
+          FYERS_CLIENT_ID: ${{ secrets.FYERS_CLIENT_ID }}
+          FYERS_PIN: ${{ secrets.FYERS_PIN }}
+          FYERS_TOTP_KEY: ${{ secrets.FYERS_TOTP_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN_2: ${{ secrets.TELEGRAM_BOT_TOKEN_2 }}
+          TELEGRAM_CHAT_ID_2: ${{ secrets.TELEGRAM_CHAT_ID_2 }}
+          FYERS_CACHE_DIR: /nonexistent/
+          FYERS_LOGIN_DIR: ${{ github.workspace }}/fyers
+          NOTIFY_DIR: ${{ github.workspace }}
+          MARKER_DIR: ${{ runner.temp }}
+          SEND_DEADLINE: "09:45:00"
+          SEND_TEST: ${{ inputs.send_test_message }}
+        run: |
+          set -o pipefail; rc=0
+          echo "scan start $(TZ=Asia/Kolkata date +%T) IST"
+          if [ -n "$TEST_DATE" ]; then
+            python live/fyers_morning.py --date "$TEST_DATE" --fetch | tee out.txt || rc=$?
+          else
+            python live/fyers_morning.py | tee out.txt || rc=$?
+          fi
+          echo "scan end rc=$rc $(TZ=Asia/Kolkata date +%T) IST"
+          if [ "$SEND_TEST" = "true" ]; then
+            python - <<'PY'
+          import notify, subprocess
+          from datetime import datetime, timedelta, timezone
+          t = datetime.now(timezone(timedelta(hours=5, minutes=30)))
+          n = sum(1 for l in open("out.txt") if l.startswith('{"symbol"'))
+          msg = f"🧪 TEST (not a signal): GitHub Fyers scanner replay finished {t:%H:%M:%S} IST, {n} signal(s) found. Ignore."
+          for tok, chat in notify.targets(): print("telegram", notify.send(tok, chat, msg), t.strftime("%H:%M:%S"))
+          PY
+          fi
+          exit $rc
+      - name: Record send (state/last_send.json)
+        if: always() && env.SKIP != '1' && env.TEST_DATE == ''
+        run: |
+          d=$(TZ=Asia/Kolkata date +%F); m="$RUNNER_TEMP/signals_$d.json"
+          [ -f "$m" ] || { echo "nothing sent"; exit 0; }
+          python3 -c "import json,sys;r=json.load(open('$m'));json.dump({'date':r['date'],'source':'github-fyers','status':r.get('status'),'finished_at':r.get('finished_at'),'run_id':'${{ github.run_id }}','signals':[{k:s[k] for k in ('symbol','side','entry','sl','lock')} for s in r['signals']],'skipped':{k:[s['symbol'] for s in r.get(k,[])] for k in ('skipped_gap','skipped_vwap','skipped_body')}},open('state/last_send.json','w'),indent=1)"
+          git config user.name github-actions; git config user.email github-actions@users.noreply.github.com
+          git add state/last_send.json && git commit -m "state: sent $d [skip ci]"
+          for i in 1 2 3 4; do git pull --rebase -q && git push && break; sleep 5; done

@@ -80,6 +80,17 @@ jobs:
               raise SystemExit(0)
           fy = os.environ.get("FYERS_VAR_AT_START", "")
           print(f"LAST_FYERS_SEND_DATE={fy!r}, today {today.isoformat()}")
+          try:
+              import base64
+              raw_st = subprocess.check_output(["gh", "api", f"repos/{repo}/contents/state/last_send.json", "--jq", ".content"], text=True)
+              st = json.loads(base64.b64decode(raw_st)).get("date")
+          except Exception:
+              st = None
+          print(f"state/last_send.json date={st!r}")
+          if st == today.isoformat():
+              print("GitHub Fyers scanner already sent today's signals: Yahoo fallback sends nothing")
+              env.write("SKIP=1\n")
+              raise SystemExit(0)
           if fy == today.isoformat():
               print("Fyers (box) already sent today's signals: Yahoo fallback sends nothing")
               env.write("SKIP=1\n")
