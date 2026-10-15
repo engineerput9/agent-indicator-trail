@@ -1,1 +1,51 @@
-{"date": null}
+{
+ "date": "2026-10-15",
+ "source": "github-fyers",
+ "status": "sent",
+ "finished_at": "2026-10-15T09:27:02.259025+05:30",
+ "run_id": "38678395161",
+ "signals": [
+  {
+   "symbol": "NHPC.NS",
+   "side": "short",
+   "entry": 72.75,
+   "sl": 73.11375,
+   "lock": 71.65875
+  },
+  {
+   "symbol": "PNB.NS",
+   "side": "short",
+   "entry": 117.07,
+   "sl": 117.65534999999998,
+   "lock": 115.31394999999999
+  },
+  {
+   "symbol": "BHARTIARTL.NS",
+   "side": "long",
+   "entry": 1817.8,
+   "sl": 1808.711,
+   "lock": 1845.0669999999998
+  },
+  {
+   "symbol": "INDUSINDBK.NS",
+   "side": "long",
+   "entry": 872.95,
+   "sl": 868.5852500000001,
+   "lock": 886.0442499999999
+  }
+ ],
+ "skipped": {
+  "skipped_gap": [
+   "BDL.NS",
+   "HCLTECH.NS",
+   "LICI.NS",
+   "LTF.NS",
+   "PERSISTENT.NS",
+   "UNOMINDA.NS"
+  ],
+  "skipped_vwap": [],
+  "skipped_body": [
+   "INDIANB.NS"
+  ]
+ }
+}
