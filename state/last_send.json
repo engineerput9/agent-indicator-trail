@@ -1,51 +1,56 @@
 {
- "date": "2026-10-15",
+ "date": "2026-10-16",
  "source": "github-fyers",
  "status": "sent",
- "finished_at": "2026-10-15T09:27:02.259025+05:30",
- "run_id": "38678395161",
+ "finished_at": "2026-10-16T09:27:08.654427+05:30",
+ "run_id": "38847572886",
  "signals": [
   {
-   "symbol": "NHPC.NS",
+   "symbol": "NAM-INDIA.NS",
    "side": "short",
-   "entry": 72.75,
-   "sl": 73.11375,
-   "lock": 71.65875
+   "entry": 1064.1,
+   "sl": 1069.4204999999997,
+   "lock": 1048.1384999999998
   },
   {
-   "symbol": "PNB.NS",
+   "symbol": "BSE.NS",
    "side": "short",
-   "entry": 117.07,
-   "sl": 117.65534999999998,
-   "lock": 115.31394999999999
+   "entry": 3375.2,
+   "sl": 3392.0759999999996,
+   "lock": 3324.5719999999997
   },
   {
-   "symbol": "BHARTIARTL.NS",
-   "side": "long",
-   "entry": 1817.8,
-   "sl": 1808.711,
-   "lock": 1845.0669999999998
+   "symbol": "COLPAL.NS",
+   "side": "short",
+   "entry": 1758.4,
+   "sl": 1767.192,
+   "lock": 1732.0240000000001
   },
   {
-   "symbol": "INDUSINDBK.NS",
-   "side": "long",
-   "entry": 872.95,
-   "sl": 868.5852500000001,
-   "lock": 886.0442499999999
+   "symbol": "MCX.NS",
+   "side": "short",
+   "entry": 3194.2,
+   "sl": 3210.1709999999994,
+   "lock": 3146.287
+  },
+  {
+   "symbol": "LICHSGFIN.NS",
+   "side": "short",
+   "entry": 529.5,
+   "sl": 532.1474999999999,
+   "lock": 521.5575
   }
  ],
  "skipped": {
   "skipped_gap": [
-   "BDL.NS",
-   "HCLTECH.NS",
-   "LICI.NS",
-   "LTF.NS",
-   "PERSISTENT.NS",
-   "UNOMINDA.NS"
+   "IOC.NS",
+   "SOLARINDS.NS"
   ],
-  "skipped_vwap": [],
+  "skipped_vwap": [
+   "ADANIPOWER.NS"
+  ],
   "skipped_body": [
-   "INDIANB.NS"
+   "DMART.NS"
   ]
  }
 }
