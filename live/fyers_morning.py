@@ -177,12 +177,17 @@ def run_scan(frames, d):
 
 
 class Fetcher:
-    """Fyers history with a simple rate limiter (Fyers allows ~10/s and ~200/min)."""
+    """Fyers history with a rate limiter. Prime plan: stay safely under the limits at
+    <= MAX_PER_S calls/s (min spacing, no extra sleep beyond it) and <= MAX_PER_MIN calls/min."""
+    MAX_PER_S, MAX_PER_MIN = 8, 400
     def __init__(self, fy): self.fy, self.calls = fy, []
     def _throttle(self):
         now = time.time(); self.calls = [c for c in self.calls if now - c < 60]
-        if len(self.calls) >= 180: time.sleep(60 - (now - self.calls[0]) + 0.1)
-        self.calls.append(time.time()); time.sleep(0.12)
+        if len(self.calls) >= self.MAX_PER_MIN: time.sleep(60 - (now - self.calls[0]) + 0.1)
+        if self.calls:
+            wait = self.calls[-1] + 1.0 / self.MAX_PER_S - time.time()
+            if wait > 0: time.sleep(wait)
+        self.calls.append(time.time())
     def history(self, s, a, b):
         from fyers_login import scrub
         r = None
@@ -195,7 +200,7 @@ class Fetcher:
                 r = {"s": "error", "message": type(exc).__name__}
             if r.get("s") == "ok": return candles_to_df(r.get("candles") or [])
             if r.get("s") == "no_data": return candles_to_df([])
-            time.sleep(1 + attempt * 2)
+            time.sleep(1.5 * (attempt + 1) if str(r.get("code")) in ("-360", "429") else 0.5 + attempt)
         log.warning("history failed %s: %s", s, scrub(r)[:150])
         return None
 
