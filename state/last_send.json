@@ -1,56 +1,64 @@
 {
- "date": "2026-10-16",
+ "date": "2026-10-21",
  "source": "github-fyers",
- "status": "sent",
- "finished_at": "2026-10-16T09:27:08.654427+05:30",
- "run_id": "38847572886",
+ "status": "partial",
+ "finished_at": "2026-10-21T09:27:02.576269+05:30",
+ "run_id": "39540830206",
  "signals": [
   {
-   "symbol": "NAM-INDIA.NS",
-   "side": "short",
-   "entry": 1064.1,
-   "sl": 1069.4204999999997,
-   "lock": 1048.1384999999998
+   "symbol": "SRF.NS",
+   "side": "long",
+   "entry": 2437.9,
+   "sl": 2425.7105,
+   "lock": 2474.4685
   },
   {
-   "symbol": "BSE.NS",
-   "side": "short",
-   "entry": 3375.2,
-   "sl": 3392.0759999999996,
-   "lock": 3324.5719999999997
+   "symbol": "GRASIM.NS",
+   "side": "long",
+   "entry": 2911.1,
+   "sl": 2896.5445,
+   "lock": 2954.7664999999997
   },
   {
-   "symbol": "COLPAL.NS",
-   "side": "short",
-   "entry": 1758.4,
-   "sl": 1767.192,
-   "lock": 1732.0240000000001
+   "symbol": "JIOFIN.NS",
+   "side": "long",
+   "entry": 215.6,
+   "sl": 214.522,
+   "lock": 218.83399999999997
   },
   {
-   "symbol": "MCX.NS",
-   "side": "short",
-   "entry": 3194.2,
-   "sl": 3210.1709999999994,
-   "lock": 3146.287
+   "symbol": "INDUSTOWER.NS",
+   "side": "long",
+   "entry": 385.7,
+   "sl": 383.7715,
+   "lock": 391.48549999999994
   },
   {
-   "symbol": "LICHSGFIN.NS",
-   "side": "short",
-   "entry": 529.5,
-   "sl": 532.1474999999999,
-   "lock": 521.5575
+   "symbol": "GAIL.NS",
+   "side": "long",
+   "entry": 168.06,
+   "sl": 167.2197,
+   "lock": 170.58089999999999
+  },
+  {
+   "symbol": "GLENMARK.NS",
+   "side": "long",
+   "entry": 2235.6,
+   "sl": 2224.422,
+   "lock": 2269.1339999999996
   }
  ],
  "skipped": {
   "skipped_gap": [
-   "IOC.NS",
-   "SOLARINDS.NS"
+   "HDFCAMC.NS",
+   "TATASTEEL.NS",
+   "UNIONBANK.NS"
   ],
   "skipped_vwap": [
-   "ADANIPOWER.NS"
+   "BOSCHLTD.NS",
+   "HINDALCO.NS",
+   "KEI.NS"
   ],
-  "skipped_body": [
-   "DMART.NS"
-  ]
+  "skipped_body": []
  }
 }
