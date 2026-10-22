@@ -1,64 +1,70 @@
 {
- "date": "2026-10-21",
+ "date": "2026-10-22",
  "source": "github-fyers",
  "status": "partial",
- "finished_at": "2026-10-21T09:27:02.576269+05:30",
- "run_id": "39540830206",
+ "finished_at": "2026-10-22T09:26:47.767520+05:30",
+ "run_id": "39719106895",
  "signals": [
   {
-   "symbol": "SRF.NS",
-   "side": "long",
-   "entry": 2437.9,
-   "sl": 2425.7105,
-   "lock": 2474.4685
+   "symbol": "SUPREMEIND.NS",
+   "side": "short",
+   "entry": 3492.9,
+   "sl": 3510.3644999999997,
+   "lock": 3440.5065
   },
   {
-   "symbol": "GRASIM.NS",
-   "side": "long",
-   "entry": 2911.1,
-   "sl": 2896.5445,
-   "lock": 2954.7664999999997
+   "symbol": "ABCAPITAL.NS",
+   "side": "short",
+   "entry": 361.8,
+   "sl": 363.609,
+   "lock": 356.373
   },
   {
-   "symbol": "JIOFIN.NS",
-   "side": "long",
-   "entry": 215.6,
-   "sl": 214.522,
-   "lock": 218.83399999999997
+   "symbol": "IRFC.NS",
+   "side": "short",
+   "entry": 76.04,
+   "sl": 76.4202,
+   "lock": 74.8994
   },
   {
-   "symbol": "INDUSTOWER.NS",
-   "side": "long",
-   "entry": 385.7,
-   "sl": 383.7715,
-   "lock": 391.48549999999994
-  },
-  {
-   "symbol": "GAIL.NS",
-   "side": "long",
-   "entry": 168.06,
-   "sl": 167.2197,
-   "lock": 170.58089999999999
-  },
-  {
-   "symbol": "GLENMARK.NS",
-   "side": "long",
-   "entry": 2235.6,
-   "sl": 2224.422,
-   "lock": 2269.1339999999996
+   "symbol": "GODFRYPHLP.NS",
+   "side": "short",
+   "entry": 1735.6,
+   "sl": 1744.2779999999998,
+   "lock": 1709.5659999999998
   }
  ],
  "skipped": {
   "skipped_gap": [
-   "HDFCAMC.NS",
-   "TATASTEEL.NS",
-   "UNIONBANK.NS"
+   "ADANIENT.NS",
+   "AMBUJACEM.NS",
+   "ASTRAL.NS",
+   "BEL.NS",
+   "BPCL.NS",
+   "COALINDIA.NS",
+   "DABUR.NS",
+   "DELHIVERY.NS",
+   "DLF.NS",
+   "DMART.NS",
+   "FORTIS.NS",
+   "GMRAIRPORT.NS",
+   "IDFCFIRSTB.NS",
+   "LUPIN.NS",
+   "NATIONALUM.NS",
+   "NAUKRI.NS",
+   "NBCC.NS",
+   "NESTLEIND.NS",
+   "OFSS.NS",
+   "SOLARINDS.NS",
+   "SUZLON.NS",
+   "SWIGGY.NS",
+   "TITAN.NS",
+   "TMPV.NS",
+   "VEDL.NS",
+   "VOLTAS.NS",
+   "WAAREEENER.NS"
   ],
-  "skipped_vwap": [
-   "BOSCHLTD.NS",
-   "HINDALCO.NS",
-   "KEI.NS"
-  ],
+  "skipped_vwap": [],
   "skipped_body": []
  }
 }
