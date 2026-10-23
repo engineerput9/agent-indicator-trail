@@ -1,68 +1,43 @@
 {
- "date": "2026-10-22",
+ "date": "2026-10-23",
  "source": "github-fyers",
  "status": "partial",
- "finished_at": "2026-10-22T09:26:47.767520+05:30",
- "run_id": "39719106895",
+ "finished_at": "2026-10-23T09:29:19.824789+05:30",
+ "run_id": "39897194563",
  "signals": [
   {
-   "symbol": "SUPREMEIND.NS",
+   "symbol": "PFC.NS",
    "side": "short",
-   "entry": 3492.9,
-   "sl": 3510.3644999999997,
-   "lock": 3440.5065
+   "entry": 320.25,
+   "sl": 321.85125,
+   "lock": 315.44625
   },
   {
-   "symbol": "ABCAPITAL.NS",
+   "symbol": "PGEL.NS",
    "side": "short",
-   "entry": 361.8,
-   "sl": 363.609,
-   "lock": 356.373
+   "entry": 482.1,
+   "sl": 484.5105,
+   "lock": 474.86850000000004
   },
   {
-   "symbol": "IRFC.NS",
+   "symbol": "TATAPOWER.NS",
    "side": "short",
-   "entry": 76.04,
-   "sl": 76.4202,
-   "lock": 74.8994
+   "entry": 349.6,
+   "sl": 351.348,
+   "lock": 344.356
   },
   {
-   "symbol": "GODFRYPHLP.NS",
+   "symbol": "INDIANB.NS",
    "side": "short",
-   "entry": 1735.6,
-   "sl": 1744.2779999999998,
-   "lock": 1709.5659999999998
+   "entry": 847.75,
+   "sl": 851.9887499999999,
+   "lock": 835.0337499999999
   }
  ],
  "skipped": {
   "skipped_gap": [
-   "ADANIENT.NS",
-   "AMBUJACEM.NS",
-   "ASTRAL.NS",
-   "BEL.NS",
-   "BPCL.NS",
-   "COALINDIA.NS",
-   "DABUR.NS",
-   "DELHIVERY.NS",
-   "DLF.NS",
-   "DMART.NS",
-   "FORTIS.NS",
-   "GMRAIRPORT.NS",
-   "IDFCFIRSTB.NS",
-   "LUPIN.NS",
-   "NATIONALUM.NS",
-   "NAUKRI.NS",
-   "NBCC.NS",
-   "NESTLEIND.NS",
-   "OFSS.NS",
-   "SOLARINDS.NS",
-   "SUZLON.NS",
-   "SWIGGY.NS",
-   "TITAN.NS",
-   "TMPV.NS",
-   "VEDL.NS",
-   "VOLTAS.NS",
-   "WAAREEENER.NS"
+   "M&M.NS",
+   "NAUKRI.NS"
   ],
   "skipped_vwap": [],
   "skipped_body": []
