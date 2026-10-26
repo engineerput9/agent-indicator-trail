@@ -1,45 +1,49 @@
 {
- "date": "2026-10-23",
+ "date": "2026-10-26",
  "source": "github-fyers",
  "status": "partial",
- "finished_at": "2026-10-23T09:29:19.824789+05:30",
- "run_id": "39897194563",
+ "finished_at": "2026-10-26T09:29:19.904677+05:30",
+ "run_id": "40266079625",
  "signals": [
   {
-   "symbol": "PFC.NS",
-   "side": "short",
-   "entry": 320.25,
-   "sl": 321.85125,
-   "lock": 315.44625
+   "symbol": "OFSS.NS",
+   "side": "long",
+   "entry": 9815.0,
+   "sl": 9765.925,
+   "lock": 9962.224999999999
   },
   {
-   "symbol": "PGEL.NS",
+   "symbol": "KFINTECH.NS",
    "side": "short",
-   "entry": 482.1,
-   "sl": 484.5105,
-   "lock": 474.86850000000004
+   "entry": 787.45,
+   "sl": 791.38725,
+   "lock": 775.6382500000001
   },
   {
-   "symbol": "TATAPOWER.NS",
+   "symbol": "ASHOKLEY.NS",
    "side": "short",
-   "entry": 349.6,
-   "sl": 351.348,
-   "lock": 344.356
+   "entry": 142.24,
+   "sl": 142.9512,
+   "lock": 140.1064
   },
   {
-   "symbol": "INDIANB.NS",
+   "symbol": "UPL.NS",
    "side": "short",
-   "entry": 847.75,
-   "sl": 851.9887499999999,
-   "lock": 835.0337499999999
+   "entry": 500.9,
+   "sl": 503.4044999999999,
+   "lock": 493.38649999999996
   }
  ],
  "skipped": {
   "skipped_gap": [
-   "M&M.NS",
-   "NAUKRI.NS"
+   "AMBUJACEM.NS",
+   "IEX.NS",
+   "KALYANKJIL.NS",
+   "TATACONSUM.NS"
   ],
   "skipped_vwap": [],
-  "skipped_body": []
+  "skipped_body": [
+   "PGEL.NS"
+  ]
  }
 }
