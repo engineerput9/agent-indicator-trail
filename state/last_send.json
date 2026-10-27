@@ -1,49 +1,35 @@
 {
- "date": "2026-10-26",
+ "date": "2026-10-27",
  "source": "github-fyers",
  "status": "partial",
- "finished_at": "2026-10-26T09:29:19.904677+05:30",
- "run_id": "40266079625",
+ "finished_at": "2026-10-27T09:29:09.253496+05:30",
+ "run_id": "40446455275",
  "signals": [
   {
-   "symbol": "OFSS.NS",
-   "side": "long",
-   "entry": 9815.0,
-   "sl": 9765.925,
-   "lock": 9962.224999999999
+   "symbol": "MCX.NS",
+   "side": "short",
+   "entry": 3099.9,
+   "sl": 3115.3994999999995,
+   "lock": 3053.4015
   },
   {
-   "symbol": "KFINTECH.NS",
+   "symbol": "TATAELXSI.NS",
    "side": "short",
-   "entry": 787.45,
-   "sl": 791.38725,
-   "lock": 775.6382500000001
-  },
-  {
-   "symbol": "ASHOKLEY.NS",
-   "side": "short",
-   "entry": 142.24,
-   "sl": 142.9512,
-   "lock": 140.1064
-  },
-  {
-   "symbol": "UPL.NS",
-   "side": "short",
-   "entry": 500.9,
-   "sl": 503.4044999999999,
-   "lock": 493.38649999999996
+   "entry": 3691.0,
+   "sl": 3709.4549999999995,
+   "lock": 3635.6349999999998
   }
  ],
  "skipped": {
   "skipped_gap": [
-   "AMBUJACEM.NS",
-   "IEX.NS",
-   "KALYANKJIL.NS",
-   "TATACONSUM.NS"
+   "COCHINSHIP.NS",
+   "MAZDOCK.NS",
+   "ONGC.NS",
+   "RELIANCE.NS",
+   "SOLARINDS.NS",
+   "WIPRO.NS"
   ],
   "skipped_vwap": [],
-  "skipped_body": [
-   "PGEL.NS"
-  ]
+  "skipped_body": []
  }
 }
