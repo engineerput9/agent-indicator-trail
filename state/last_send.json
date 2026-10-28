@@ -1,33 +1,48 @@
 {
- "date": "2026-10-27",
+ "date": "2026-10-28",
  "source": "github-fyers",
  "status": "partial",
- "finished_at": "2026-10-27T09:29:09.253496+05:30",
- "run_id": "40446455275",
+ "finished_at": "2026-10-28T09:29:15.228878+05:30",
+ "run_id": "40629013917",
  "signals": [
   {
-   "symbol": "MCX.NS",
+   "symbol": "APLAPOLLO.NS",
    "side": "short",
-   "entry": 3099.9,
-   "sl": 3115.3994999999995,
-   "lock": 3053.4015
+   "entry": 2173.1,
+   "sl": 2183.9655,
+   "lock": 2140.5035
   },
   {
-   "symbol": "TATAELXSI.NS",
+   "symbol": "SONACOMS.NS",
+   "side": "long",
+   "entry": 860.25,
+   "sl": 855.94875,
+   "lock": 873.15375
+  },
+  {
+   "symbol": "HEROMOTOCO.NS",
+   "side": "long",
+   "entry": 5287.0,
+   "sl": 5260.565,
+   "lock": 5366.304999999999
+  },
+  {
+   "symbol": "JIOFIN.NS",
    "side": "short",
-   "entry": 3691.0,
-   "sl": 3709.4549999999995,
-   "lock": 3635.6349999999998
+   "entry": 205.59,
+   "sl": 206.61794999999998,
+   "lock": 202.50615
   }
  ],
  "skipped": {
   "skipped_gap": [
-   "COCHINSHIP.NS",
-   "MAZDOCK.NS",
-   "ONGC.NS",
-   "RELIANCE.NS",
-   "SOLARINDS.NS",
-   "WIPRO.NS"
+   "ADANIPORTS.NS",
+   "ADANIPOWER.NS",
+   "AMBUJACEM.NS",
+   "BHARTIARTL.NS",
+   "HYUNDAI.NS",
+   "IEX.NS",
+   "KAYNES.NS"
   ],
   "skipped_vwap": [],
   "skipped_body": []
