@@ -1,48 +1,42 @@
 {
- "date": "2026-10-28",
+ "date": "2026-10-29",
  "source": "github-fyers",
  "status": "partial",
- "finished_at": "2026-10-28T09:29:15.228878+05:30",
- "run_id": "40629013917",
+ "finished_at": "2026-10-29T09:29:09.808746+05:30",
+ "run_id": "40814448317",
  "signals": [
   {
-   "symbol": "APLAPOLLO.NS",
+   "symbol": "MOTHERSON.NS",
    "side": "short",
-   "entry": 2173.1,
-   "sl": 2183.9655,
-   "lock": 2140.5035
+   "entry": 158.75,
+   "sl": 159.54375,
+   "lock": 156.36875
   },
   {
-   "symbol": "SONACOMS.NS",
-   "side": "long",
-   "entry": 860.25,
-   "sl": 855.94875,
-   "lock": 873.15375
-  },
-  {
-   "symbol": "HEROMOTOCO.NS",
-   "side": "long",
-   "entry": 5287.0,
-   "sl": 5260.565,
-   "lock": 5366.304999999999
-  },
-  {
-   "symbol": "JIOFIN.NS",
+   "symbol": "BAJFINANCE.NS",
    "side": "short",
-   "entry": 205.59,
-   "sl": 206.61794999999998,
-   "lock": 202.50615
+   "entry": 909.4,
+   "sl": 913.9469999999999,
+   "lock": 895.759
+  },
+  {
+   "symbol": "ADANIGREEN.NS",
+   "side": "long",
+   "entry": 1289.7,
+   "sl": 1283.2515,
+   "lock": 1309.0455
+  },
+  {
+   "symbol": "JUBLFOOD.NS",
+   "side": "short",
+   "entry": 421.05,
+   "sl": 423.15524999999997,
+   "lock": 414.73425000000003
   }
  ],
  "skipped": {
   "skipped_gap": [
-   "ADANIPORTS.NS",
-   "ADANIPOWER.NS",
-   "AMBUJACEM.NS",
-   "BHARTIARTL.NS",
-   "HYUNDAI.NS",
-   "IEX.NS",
-   "KAYNES.NS"
+   "NATIONALUM.NS"
   ],
   "skipped_vwap": [],
   "skipped_body": []
