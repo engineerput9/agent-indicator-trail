@@ -1,44 +1,77 @@
 {
- "date": "2026-10-29",
+ "date": "2026-10-30",
  "source": "github-fyers",
  "status": "partial",
- "finished_at": "2026-10-29T09:29:09.808746+05:30",
- "run_id": "40814448317",
+ "finished_at": "2026-10-30T09:29:21.340397+05:30",
+ "run_id": "40999651327",
  "signals": [
   {
-   "symbol": "MOTHERSON.NS",
+   "symbol": "COLPAL.NS",
    "side": "short",
-   "entry": 158.75,
-   "sl": 159.54375,
-   "lock": 156.36875
+   "entry": 1600.2,
+   "sl": 1608.2009999999998,
+   "lock": 1576.1970000000001
   },
   {
-   "symbol": "BAJFINANCE.NS",
+   "symbol": "ASTRAL.NS",
    "side": "short",
-   "entry": 909.4,
-   "sl": 913.9469999999999,
-   "lock": 895.759
+   "entry": 1344.8,
+   "sl": 1351.524,
+   "lock": 1324.628
   },
   {
-   "symbol": "ADANIGREEN.NS",
-   "side": "long",
-   "entry": 1289.7,
-   "sl": 1283.2515,
-   "lock": 1309.0455
+   "symbol": "HAVELLS.NS",
+   "side": "short",
+   "entry": 1008.0,
+   "sl": 1013.0399999999998,
+   "lock": 992.88
   },
   {
-   "symbol": "JUBLFOOD.NS",
+   "symbol": "RVNL.NS",
    "side": "short",
-   "entry": 421.05,
-   "sl": 423.15524999999997,
-   "lock": 414.73425000000003
+   "entry": 183.0,
+   "sl": 183.915,
+   "lock": 180.255
+  },
+  {
+   "symbol": "MAZDOCK.NS",
+   "side": "short",
+   "entry": 1738.3,
+   "sl": 1746.9914999999999,
+   "lock": 1712.2255
+  },
+  {
+   "symbol": "IRFC.NS",
+   "side": "short",
+   "entry": 74.61,
+   "sl": 74.98304999999999,
+   "lock": 73.49085
+  },
+  {
+   "symbol": "DMART.NS",
+   "side": "short",
+   "entry": 3152.8,
+   "sl": 3168.564,
+   "lock": 3105.5080000000003
   }
  ],
  "skipped": {
   "skipped_gap": [
-   "NATIONALUM.NS"
+   "AXISBANK.NS",
+   "BDL.NS",
+   "BLUESTARCO.NS",
+   "HDFCAMC.NS",
+   "IEX.NS",
+   "PGEL.NS",
+   "SWIGGY.NS"
   ],
-  "skipped_vwap": [],
-  "skipped_body": []
+  "skipped_vwap": [
+   "ANGELONE.NS",
+   "KAYNES.NS",
+   "NMDC.NS"
+  ],
+  "skipped_body": [
+   "IREDA.NS"
+  ]
  }
 }
