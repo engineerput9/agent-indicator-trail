@@ -1,77 +1,46 @@
 {
- "date": "2026-10-30",
+ "date": "2026-11-02",
  "source": "github-fyers",
  "status": "partial",
- "finished_at": "2026-10-30T09:29:21.340397+05:30",
- "run_id": "40999651327",
+ "finished_at": "2026-11-02T09:29:19.207456+05:30",
+ "run_id": "41385277507",
  "signals": [
   {
-   "symbol": "COLPAL.NS",
-   "side": "short",
-   "entry": 1600.2,
-   "sl": 1608.2009999999998,
-   "lock": 1576.1970000000001
+   "symbol": "AMBER.NS",
+   "side": "long",
+   "entry": 5992.0,
+   "sl": 5962.04,
+   "lock": 6081.879999999999
   },
   {
-   "symbol": "ASTRAL.NS",
-   "side": "short",
-   "entry": 1344.8,
-   "sl": 1351.524,
-   "lock": 1324.628
+   "symbol": "DLF.NS",
+   "side": "long",
+   "entry": 693.45,
+   "sl": 689.98275,
+   "lock": 703.8517499999999
   },
   {
-   "symbol": "HAVELLS.NS",
-   "side": "short",
-   "entry": 1008.0,
-   "sl": 1013.0399999999998,
-   "lock": 992.88
-  },
-  {
-   "symbol": "RVNL.NS",
-   "side": "short",
-   "entry": 183.0,
-   "sl": 183.915,
-   "lock": 180.255
-  },
-  {
-   "symbol": "MAZDOCK.NS",
-   "side": "short",
-   "entry": 1738.3,
-   "sl": 1746.9914999999999,
-   "lock": 1712.2255
-  },
-  {
-   "symbol": "IRFC.NS",
-   "side": "short",
-   "entry": 74.61,
-   "sl": 74.98304999999999,
-   "lock": 73.49085
-  },
-  {
-   "symbol": "DMART.NS",
-   "side": "short",
-   "entry": 3152.8,
-   "sl": 3168.564,
-   "lock": 3105.5080000000003
+   "symbol": "BHEL.NS",
+   "side": "long",
+   "entry": 394.15,
+   "sl": 392.17924999999997,
+   "lock": 400.06224999999995
   }
  ],
  "skipped": {
   "skipped_gap": [
-   "AXISBANK.NS",
-   "BDL.NS",
-   "BLUESTARCO.NS",
-   "HDFCAMC.NS",
-   "IEX.NS",
-   "PGEL.NS",
-   "SWIGGY.NS"
+   "COCHINSHIP.NS",
+   "DELHIVERY.NS",
+   "GODFRYPHLP.NS",
+   "MAXHEALTH.NS",
+   "MAZDOCK.NS",
+   "NBCC.NS"
   ],
   "skipped_vwap": [
-   "ANGELONE.NS",
-   "KAYNES.NS",
    "NMDC.NS"
   ],
   "skipped_body": [
-   "IREDA.NS"
+   "BDL.NS"
   ]
  }
 }
