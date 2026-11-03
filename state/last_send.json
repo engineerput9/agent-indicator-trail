@@ -1,46 +1,19 @@
 {
- "date": "2026-11-02",
+ "date": "2026-11-03",
  "source": "github-fyers",
  "status": "partial",
- "finished_at": "2026-11-02T09:29:19.207456+05:30",
- "run_id": "41385277507",
- "signals": [
-  {
-   "symbol": "AMBER.NS",
-   "side": "long",
-   "entry": 5992.0,
-   "sl": 5962.04,
-   "lock": 6081.879999999999
-  },
-  {
-   "symbol": "DLF.NS",
-   "side": "long",
-   "entry": 693.45,
-   "sl": 689.98275,
-   "lock": 703.8517499999999
-  },
-  {
-   "symbol": "BHEL.NS",
-   "side": "long",
-   "entry": 394.15,
-   "sl": 392.17924999999997,
-   "lock": 400.06224999999995
-  }
- ],
+ "finished_at": "2026-11-03T09:29:16.074220+05:30",
+ "run_id": "41574632100",
+ "signals": [],
  "skipped": {
   "skipped_gap": [
-   "COCHINSHIP.NS",
-   "DELHIVERY.NS",
-   "GODFRYPHLP.NS",
-   "MAXHEALTH.NS",
    "MAZDOCK.NS",
-   "NBCC.NS"
+   "POLICYBZR.NS",
+   "RVNL.NS"
   ],
   "skipped_vwap": [
-   "NMDC.NS"
+   "HDFCLIFE.NS"
   ],
-  "skipped_body": [
-   "BDL.NS"
-  ]
+  "skipped_body": []
  }
 }
