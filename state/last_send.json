@@ -1,81 +1,34 @@
 {
- "date": "2026-11-04",
+ "date": "2026-11-05",
  "source": "github-fyers",
  "status": "partial",
- "finished_at": "2026-11-04T09:29:18.035423+05:30",
- "run_id": "41769629690",
+ "finished_at": "2026-11-05T09:29:16.245171+05:30",
+ "run_id": "41964143022",
  "signals": [
   {
-   "symbol": "AMBER.NS",
-   "side": "long",
-   "entry": 6319.0,
-   "sl": 6287.405,
-   "lock": 6413.784999999999
-  },
-  {
-   "symbol": "SBICARD.NS",
-   "side": "long",
-   "entry": 542.45,
-   "sl": 539.73775,
-   "lock": 550.5867499999999
-  },
-  {
-   "symbol": "BSE.NS",
+   "symbol": "CGPOWER.NS",
    "side": "short",
-   "entry": 3602.1,
-   "sl": 3620.1104999999993,
-   "lock": 3548.0685
+   "entry": 824.95,
+   "sl": 829.07475,
+   "lock": 812.5757500000001
   },
   {
-   "symbol": "INOXWIND.NS",
-   "side": "long",
-   "entry": 60.35,
-   "sl": 60.04825,
-   "lock": 61.25525
-  },
-  {
-   "symbol": "IRFC.NS",
-   "side": "long",
-   "entry": 76.2,
-   "sl": 75.819,
-   "lock": 77.34299999999999
-  },
-  {
-   "symbol": "ADANIENT.NS",
-   "side": "long",
-   "entry": 2613.5,
-   "sl": 2600.4325,
-   "lock": 2652.7025
-  },
-  {
-   "symbol": "ADANIPOWER.NS",
-   "side": "long",
-   "entry": 196.96,
-   "sl": 195.9752,
-   "lock": 199.9144
-  },
-  {
-   "symbol": "MANAPPURAM.NS",
-   "side": "long",
-   "entry": 307.2,
-   "sl": 305.664,
-   "lock": 311.80799999999994
-  },
-  {
-   "symbol": "WAAREEENER.NS",
-   "side": "long",
-   "entry": 2334.4,
-   "sl": 2322.728,
-   "lock": 2369.4159999999997
+   "symbol": "SIEMENS.NS",
+   "side": "short",
+   "entry": 3455.0,
+   "sl": 3472.2749999999996,
+   "lock": 3403.1749999999997
   }
  ],
  "skipped": {
   "skipped_gap": [
-   "WIPRO.NS"
+   "GVT&D.NS",
+   "KALYANKJIL.NS",
+   "VMM.NS"
   ],
-  "skipped_vwap": [
-   "CDSL.NS"
-  ],
-  "skipped_body": []
+  "skipped_vwap": [],
+  "skipped_body": [
+   "POWERINDIA.NS"
+  ]
  }
 }
