@@ -1,34 +1,36 @@
 {
- "date": "2026-11-05",
+ "date": "2026-11-06",
  "source": "github-fyers",
  "status": "partial",
- "finished_at": "2026-11-05T09:29:16.245171+05:30",
- "run_id": "41964143022",
+ "finished_at": "2026-11-06T09:29:08.713557+05:30",
+ "run_id": "42158997977",
  "signals": [
   {
-   "symbol": "CGPOWER.NS",
+   "symbol": "SUZLON.NS",
    "side": "short",
-   "entry": 824.95,
-   "sl": 829.07475,
-   "lock": 812.5757500000001
-  },
-  {
-   "symbol": "SIEMENS.NS",
-   "side": "short",
-   "entry": 3455.0,
-   "sl": 3472.2749999999996,
-   "lock": 3403.1749999999997
+   "entry": 37.85,
+   "sl": 38.039249999999996,
+   "lock": 37.28225
   }
  ],
  "skipped": {
   "skipped_gap": [
-   "GVT&D.NS",
-   "KALYANKJIL.NS",
+   "ANGELONE.NS",
+   "BANKINDIA.NS",
+   "BIOCON.NS",
+   "EICHERMOT.NS",
+   "GODREJPROP.NS",
+   "MUTHOOTFIN.NS",
+   "PERSISTENT.NS",
+   "SBICARD.NS",
+   "TATACONSUM.NS",
+   "ULTRACEMCO.NS",
    "VMM.NS"
   ],
-  "skipped_vwap": [],
-  "skipped_body": [
-   "POWERINDIA.NS"
-  ]
+  "skipped_vwap": [
+   "HDFCLIFE.NS",
+   "HYUNDAI.NS"
+  ],
+  "skipped_body": []
  }
 }
