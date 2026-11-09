@@ -1,35 +1,98 @@
 {
- "date": "2026-11-06",
+ "date": "2026-11-09",
  "source": "github-fyers",
  "status": "partial",
- "finished_at": "2026-11-06T09:29:08.713557+05:30",
- "run_id": "42158997977",
+ "finished_at": "2026-11-09T09:29:16.387476+05:30",
+ "run_id": "42558609032",
  "signals": [
   {
-   "symbol": "SUZLON.NS",
+   "symbol": "BAJAJHLDNG.NS",
    "side": "short",
-   "entry": 37.85,
-   "sl": 38.039249999999996,
-   "lock": 37.28225
+   "entry": 10859.0,
+   "sl": 10913.294999999998,
+   "lock": 10696.115
+  },
+  {
+   "symbol": "GAIL.NS",
+   "side": "long",
+   "entry": 186.21,
+   "sl": 185.27895,
+   "lock": 189.00314999999998
+  },
+  {
+   "symbol": "SRF.NS",
+   "side": "short",
+   "entry": 2457.6,
+   "sl": 2469.8879999999995,
+   "lock": 2420.736
+  },
+  {
+   "symbol": "MARUTI.NS",
+   "side": "short",
+   "entry": 12685.0,
+   "sl": 12748.425,
+   "lock": 12494.725
+  },
+  {
+   "symbol": "PETRONET.NS",
+   "side": "long",
+   "entry": 317.05,
+   "sl": 315.46475000000004,
+   "lock": 321.80575
+  },
+  {
+   "symbol": "IDFCFIRSTB.NS",
+   "side": "short",
+   "entry": 76.75,
+   "sl": 77.13374999999999,
+   "lock": 75.59875
+  },
+  {
+   "symbol": "IDEA.NS",
+   "side": "short",
+   "entry": 12.63,
+   "sl": 12.69315,
+   "lock": 12.44055
+  },
+  {
+   "symbol": "LODHA.NS",
+   "side": "short",
+   "entry": 1150.2,
+   "sl": 1155.951,
+   "lock": 1132.9470000000001
+  },
+  {
+   "symbol": "MFSL.NS",
+   "side": "short",
+   "entry": 1263.2,
+   "sl": 1269.5159999999998,
+   "lock": 1244.252
+  },
+  {
+   "symbol": "SHREECEM.NS",
+   "side": "short",
+   "entry": 24850.0,
+   "sl": 24974.249999999996,
+   "lock": 24477.25
+  },
+  {
+   "symbol": "NYKAA.NS",
+   "side": "short",
+   "entry": 348.8,
+   "sl": 350.544,
+   "lock": 343.568
   }
  ],
  "skipped": {
   "skipped_gap": [
-   "ANGELONE.NS",
-   "BANKINDIA.NS",
-   "BIOCON.NS",
-   "EICHERMOT.NS",
-   "GODREJPROP.NS",
-   "MUTHOOTFIN.NS",
-   "PERSISTENT.NS",
-   "SBICARD.NS",
-   "TATACONSUM.NS",
-   "ULTRACEMCO.NS",
-   "VMM.NS"
+   "APOLLOHOSP.NS",
+   "AUBANK.NS",
+   "IOC.NS",
+   "PGEL.NS",
+   "PIIND.NS"
   ],
   "skipped_vwap": [
-   "HDFCLIFE.NS",
-   "HYUNDAI.NS"
+   "EICHERMOT.NS"
   ],
   "skipped_body": []
  }
